@@ -1,0 +1,67 @@
+{
+  "short_name": "血压记录",
+  "name": "血压记录APP - 老年人健康管理助手",
+  "description": "面向老年人的血压记录应用程序，支持每日记录多个血压测量值以及用药情况",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1890ff",
+  "background_color": "#f0f2f5",
+  "categories": ["health", "medical", "lifestyle"],
+  "lang": "zh-CN",
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "记录血压",
+      "short_name": "记录血压",
+      "description": "快速记录新的血压读数",
+      "url": "/records",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "用药管理",
+      "short_name": "用药管理",
+      "description": "查看和记录用药情况",
+      "url": "/medications",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "display_override": ["window-controls-overlay"],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

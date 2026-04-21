@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const recordRoutes = require('./routes/records');
 const medicationRoutes = require('./routes/medications');
+const statisticsRoutes = require('./routes/statistics');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,6 +45,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/medications', medicationRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

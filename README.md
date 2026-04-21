@@ -1,159 +1,156 @@
-# 血压记录APP
+# 血压记录管理系统 (Blood Pressure Tracker)
 
-面向老年人的血压记录应用程序，支持每日记录多个血压测量值以及用药情况。界面简洁易用，专为老年用户设计。
+一个面向中老年用户的血压和用药记录管理应用，支持 Web 和移动端（PWA/Capacitor）。
 
-## 🚀 快速启动
+## 功能特性
 
-### 一键启动（推荐）
+### 血压记录
+- 记录每日血压数据（收缩压、舒张压、心率）
+- 支持编辑和删除历史记录
+- 按日期范围筛选记录
+- 自动血压分类（正常/偏高/高血压1级/2级/危象）
+- 数据可视化：趋势图、对比图、心率分析
+
+### 用药管理
+- 添加、编辑、删除药物信息
+- 记录每次服药时间
+- 查看服药历史
+- 药物启用/停用切换
+- 用药依从性统计
+
+### 数据分析
+- 仪表盘统计概览
+- 血压趋势分析（周/月/季/年）
+- 智能健康建议
+- 统计报告
+- 数据导出（Excel/PDF）
+
+### 用户体验
+- 大字体、大按钮的适老化设计
+- 移动端响应式布局
+- PWA 支持（可安装到桌面）
+- iOS/Android 原生打包（Capacitor）
+- 用户注册/登录/个人设置
+
+## 技术栈
+
+| 组件 | 技术 |
+|------|------|
+| 前端 | React 19 + TypeScript + Ant Design 6 |
+| 图表 | Recharts |
+| 后端 | Express 5 + Node.js |
+| 数据库 | SQLite3 |
+| 认证 | JWT + bcryptjs |
+| 移动端 | Capacitor (iOS/Android) |
+| 容器化 | Docker + Docker Compose |
+
+## 快速开始
+
+### 环境要求
+- Node.js >= 18
+- npm >= 9
+
+### 本地开发
 
 ```bash
-# 克隆项目
-git clone <repository-url>
+# 1. 克隆项目
+git clone git@code.byted.org:lark/bloodpressure.git
 cd bloodpressure
 
-# 运行启动脚本
-./start.sh
+# 2. 启动后端
+cd backend
+cp .env.example .env
+npm install
+npm run dev
+
+# 3. 启动前端（新终端）
+cd frontend
+npm install
+npm start
 ```
 
-### Docker 启动
+前端运行在 `http://localhost:3000`，后端 API 运行在 `http://localhost:3001`。
+
+### Docker 部署
 
 ```bash
 docker-compose up -d
 ```
 
-启动后访问：
-- 前端应用：http://localhost:3000
-- 后端API：http://localhost:3001
-- 健康检查：http://localhost:3001/api/health
-
 ## 项目结构
 
 ```
 bloodpressure/
-├── backend/              # Node.js + Express 后端API
+├── backend/                 # 后端 Express API
 │   ├── src/
-│   │   ├── config/       # 数据库配置
-│   │   ├── routes/       # API路由
-│   │   ├── middleware/   # 中间件
-│   │   └── index.js      # 主服务器
-│   ├── data/             # SQLite数据库
-│   └── Dockerfile        # Docker配置
-├── frontend/             # React + TypeScript 前端应用
+│   │   ├── config/         # 数据库配置
+│   │   ├── middleware/     # 认证中间件
+│   │   ├── routes/         # API 路由
+│   │   │   ├── auth.js     # 认证（登录/注册/资料）
+│   │   │   ├── records.js  # 血压记录 CRUD
+│   │   │   ├── medications.js # 用药管理 CRUD
+│   │   │   ├── statistics.js  # 统计接口
+│   │   │   └── users.js    # 用户信息
+│   │   └── index.js        # 入口文件
+│   └── data/               # SQLite 数据库文件
+├── frontend/                # 前端 React 应用
 │   ├── src/
-│   │   ├── components/   # React组件
-│   │   ├── services/     # API服务
-│   │   └── types/        # 类型定义
-│   ├── public/           # 静态资源
-│   └── Dockerfile        # Docker配置
-├── docs/                 # 项目文档
-│   ├── DEPLOYMENT.md     # 部署指南
-│   └── USER_GUIDE.md     # 用户手册
-├── docker-compose.yml    # 容器编排
-├── start.sh              # 启动脚本
-└── README.md             # 项目说明
+│   │   ├── components/
+│   │   │   ├── auth/       # 登录/注册/鉴权
+│   │   │   ├── charts/     # 数据图表
+│   │   │   ├── common/     # 通用布局
+│   │   │   ├── dashboard/  # 仪表盘
+│   │   │   ├── export/     # 数据导出
+│   │   │   ├── medications/# 用药管理
+│   │   │   ├── profile/    # 个人设置
+│   │   │   ├── pwa/        # PWA 安装提示
+│   │   │   ├── records/    # 血压记录
+│   │   │   └── statistics/ # 统计报告
+│   │   ├── services/       # API 服务层
+│   │   ├── styles/         # 样式文件
+│   │   ├── types/          # TypeScript 类型
+│   │   └── utils/          # 工具函数
+│   ├── android/            # Android 原生工程
+│   └── ios/                # iOS 原生工程
+├── docs/                    # 文档
+├── docker-compose.yml
+└── README.md
 ```
 
-## 功能特性
+## API 文档
 
-- 📊 血压记录：收缩压、舒张压、心率记录
-- 💊 用药管理：药物信息和服药时间记录
-- 📈 数据统计：血压趋势图表和统计报告
-- 🏥 健康建议：基于血压值的健康提示
-- 📱 移动端支持：PWA和原生APP
-- 💾 离线使用：支持离线数据存储
-- 👴 老年人友好：大字体、简洁界面
+### 认证
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/auth/register | 用户注册 |
+| POST | /api/auth/login | 用户登录 |
+| GET | /api/auth/profile | 获取个人信息 |
+| PUT | /api/auth/profile | 更新个人信息 |
 
-## 技术栈
+### 血压记录
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/records | 获取血压记录（支持分页、日期筛选） |
+| POST | /api/records | 新增血压记录 |
+| PUT | /api/records/:id | 更新血压记录 |
+| DELETE | /api/records/:id | 删除血压记录 |
 
-### 后端
-- Node.js + Express
-- SQLite数据库
-- JWT认证
+### 用药管理
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/medications | 获取药物列表 |
+| POST | /api/medications | 新增药物 |
+| PUT | /api/medications/:id | 更新药物信息 |
+| DELETE | /api/medications/:id | 删除药物 |
+| POST | /api/medications/:id/taken | 记录服药 |
+| GET | /api/medications/:id/history | 获取服药历史 |
+| GET | /api/medications/intakes/all | 获取所有服药记录 |
 
-### 前端
-- React + TypeScript
-- Ant Design UI组件库
-- Chart.js图表库
-- PWA功能
-
-### 移动端
-- Progressive Web App (PWA)
-- Capacitor原生APP打包
-
-## 开发进度
-
-### ✅ 项目完成度：100% 🎉
-
-所有核心功能已开发完成并通过测试，可立即部署使用！
-
-### ✅ Phase 1: 基础架构搭建（已完成 2026-04-20）
-
-- [x] 项目目录结构规划
-- [x] 后端API框架（Node.js + Express + SQLite）
-- [x] 数据库设计（用户、血压记录、药物、用药记录表）
-- [x] 前端项目（React + TypeScript + Ant Design）
-- [x] 用户认证系统（注册/登录/权限控制）
-- [x] 路由系统和基础页面架构
-- [x] API安全措施（JWT、CORS、限流、密码加密）
-- [x] Docker容器化部署配置
-- [x] 完整的项目文档
-
-### ✅ Phase 2: 核心功能开发（已完成）
-
-- [x] 血压记录完整CRUD功能（增删改查）
-- [x] 用药管理完整功能
-- [x] 数据统计和图表展示（Recharts）
-- [x] 老年人友好的UI优化（大字体、清晰界面）
-
-### ✅ Phase 3: 高级功能实现（已完成）
-
-- [x] PWA功能（离线支持、可安装）
-- [x] Service Worker（缓存、离线数据）
-- [x] 数据可视化图表（趋势图、统计报告）
-- [x] 健康建议系统
-- [x] 性能优化（缓存、懒加载）
-
-### ✅ Phase 4: 测试和部署（已完成）
-
-- [x] 端到端功能测试
-- [x] API接口测试
-- [x] 生产环境构建
-- [x] Docker容器化
-- [x] 部署脚本和文档
-
-## 📖 文档
-
-- [📚 部署指南](docs/DEPLOYMENT.md) - 详细的安装和部署说明
-- [👥 用户手册](docs/USER_GUIDE.md) - 完整的使用说明
-- [📋 开发计划](https://github.com/your-org/bloodpressure/issues/1) - 详细的开发计划和进度
-
-## 🔧 本地开发
-
-### 后端开发
-
-```bash
-cd backend
-npm install
-npm run dev  # 开发模式，http://localhost:3001
-```
-
-### 前端开发
-
-```bash
-cd frontend
-npm install
-npm start    # 开发模式，http://localhost:3000
-```
-
-## 📄 API文档
-
-- **健康检查**: `GET /api/health`
-- **用户认证**: `POST /api/auth/login`, `POST /api/auth/register`
-- **血压记录**: `GET|POST|PUT|DELETE /api/records`
-- **用药管理**: `GET|POST /api/medications`
-
-详细的API文档请查看后端代码中的路由定义。
+### 统计
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/statistics/bp | 血压统计概览 |
 
 ## License
 
-MIT License
+MIT
