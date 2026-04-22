@@ -1,2 +1,15 @@
 # bloodpressure
-血压记录应用
+
+血压记录应用（静态网页版本）。
+
+## 功能
+
+- 新增血压记录（日期时间、收缩压、舒张压、心率、备注）
+- 本地保存记录（浏览器 `localStorage`）
+- 查看历史记录
+- 删除单条记录
+- 自动统计平均血压
+
+## 使用方式
+
+直接在浏览器打开 `/home/runner/work/bloodpressure/bloodpressure/index.html` 即可使用。

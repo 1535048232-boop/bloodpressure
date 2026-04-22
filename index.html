@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>血压记录应用</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>血压记录应用</h1>
+
+      <section class="card">
+        <h2>新增记录</h2>
+        <form id="record-form">
+          <label>
+            日期时间
+            <input id="recordedAt" name="recordedAt" type="datetime-local" required />
+          </label>
+          <label>
+            收缩压 (mmHg)
+            <input id="systolic" name="systolic" type="number" min="50" max="260" required />
+          </label>
+          <label>
+            舒张压 (mmHg)
+            <input id="diastolic" name="diastolic" type="number" min="30" max="180" required />
+          </label>
+          <label>
+            心率 (bpm，可选)
+            <input id="pulse" name="pulse" type="number" min="30" max="220" />
+          </label>
+          <label>
+            备注（可选）
+            <input id="note" name="note" type="text" maxlength="100" />
+          </label>
+          <button type="submit">保存记录</button>
+        </form>
+        <p id="message" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card">
+        <h2>统计</h2>
+        <p id="stats">暂无数据</p>
+      </section>
+
+      <section class="card">
+        <h2>历史记录</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>日期时间</th>
+              <th>血压</th>
+              <th>心率</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="records-body"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
