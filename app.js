@@ -29,7 +29,7 @@ function formatDateTime(value) {
 }
 
 function generateRecordId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (crypto?.randomUUID) {
     return crypto.randomUUID();
   }
   recordIdCounter += 1;
@@ -57,8 +57,15 @@ function renderStats(records) {
     return;
   }
   const total = records.length;
-  const avgSystolic = Math.round(records.reduce((sum, record) => sum + record.systolic, 0) / total);
-  const avgDiastolic = Math.round(records.reduce((sum, record) => sum + record.diastolic, 0) / total);
+  const totals = records.reduce(
+    (sum, record) => ({
+      systolic: sum.systolic + record.systolic,
+      diastolic: sum.diastolic + record.diastolic,
+    }),
+    { systolic: 0, diastolic: 0 }
+  );
+  const avgSystolic = Math.round(totals.systolic / total);
+  const avgDiastolic = Math.round(totals.diastolic / total);
   statsEl.textContent = `共 ${total} 条，平均血压：${avgSystolic}/${avgDiastolic} mmHg`;
 }
 
