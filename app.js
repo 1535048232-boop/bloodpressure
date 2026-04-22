@@ -29,8 +29,9 @@ function formatDateTime(value) {
 }
 
 function generateRecordId() {
-  if (crypto?.randomUUID) {
-    return crypto.randomUUID();
+  const randomUUID = globalThis.crypto?.randomUUID;
+  if (typeof randomUUID === "function") {
+    return randomUUID.call(globalThis.crypto);
   }
   recordIdCounter += 1;
   return `${Date.now()}-${recordIdCounter}`;
@@ -49,6 +50,17 @@ function clearMessage() {
   }
   messageEl.textContent = "";
   messageEl.classList.remove("message-success", "message-error");
+}
+
+function validatePressureInputs() {
+  const systolicValue = Number(document.getElementById("systolic").value);
+  const diastolicValue = Number(document.getElementById("diastolic").value);
+  const diastolicInput = document.getElementById("diastolic");
+  if (systolicValue && diastolicValue && systolicValue <= diastolicValue) {
+    diastolicInput.setCustomValidity("舒张压必须低于收缩压。");
+  } else {
+    diastolicInput.setCustomValidity("");
+  }
 }
 
 function renderStats(records) {
@@ -99,6 +111,10 @@ function renderRecords() {
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
+  validatePressureInputs();
+  if (!form.reportValidity()) {
+    return;
+  }
   const recordedAt = document.getElementById("recordedAt").value;
   const systolic = Number(document.getElementById("systolic").value);
   const diastolic = Number(document.getElementById("diastolic").value);
@@ -153,6 +169,7 @@ recordsBody.addEventListener("click", (event) => {
 
 form.addEventListener("input", () => {
   clearMessage();
+  validatePressureInputs();
 });
 
 renderRecords();
