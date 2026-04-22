@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>血压记录</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-brand:#0D9488;--color-brand-light:#14B8A6;--color-brand-lighter:#99F6E4;
+      --color-brand-lightest:#F0FDFA;--color-brand-dark:#0F766E;--color-brand-deep:#134E4A;
+      --color-success:#10B981;--color-success-bg:#D1FAE5;
+      --color-warning:#F59E0B;--color-warning-bg:#FEF3C7;
+      --color-danger:#EF4444;--color-danger-bg:#FEE2E2;
+      --color-info:#3B82F6;--color-info-bg:#DBEAFE;
+      --color-purple:#8B5CF6;--color-purple-bg:#EDE9FE;--color-purple-light:#A78BFA;
+      --bp-optimal:#10B981;--bp-normal:#34D399;--bp-elevated:#FBBF24;--bp-high1:#F97316;--bp-high2:#EF4444;
+      --gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;--gray-300:#CBD5E1;
+      --gray-400:#94A3B8;--gray-500:#64748B;--gray-600:#475569;--gray-700:#334155;
+      --gray-800:#1E293B;--gray-900:#0F172A;
+      --bg-base:#F0FDFA;--bg-surface:#FFFFFF;
+      --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;
+      --space-5:20px;--space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;
+      --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;
+      --radius-2xl:24px;--radius-full:9999px;
+      --shadow-sm:0 1px 3px rgba(13,148,136,0.06),0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:0 4px 12px rgba(13,148,136,0.08),0 2px 4px rgba(0,0,0,0.04);
+      --shadow-lg:0 12px 32px rgba(13,148,136,0.12),0 4px 8px rgba(0,0,0,0.04);
+      --shadow-brand:0 8px 24px rgba(13,148,136,0.3);
+      --shadow-purple:0 8px 24px rgba(139,92,246,0.3);
+      --font-sans:'Noto Sans SC','Inter',system-ui,-apple-system,sans-serif;
+      --ease-out:cubic-bezier(0.16,1,0.3,1);
+      --duration-fast:150ms;--duration-normal:250ms;--duration-slow:350ms;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-family:var(--font-sans);font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+    body{background:var(--bg-base);color:var(--gray-800);line-height:1.6;min-height:100vh;overflow-x:hidden}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+
+    .app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg-base);position:relative;overflow-x:hidden}
+    .app::before{content:'';position:fixed;top:-120px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(13,148,136,0.12) 0%,transparent 70%);border-radius:50%;pointer-events:none;z-index:0}
+
+    .header{position:sticky;top:0;z-index:100;padding:var(--space-4) var(--space-5);background:rgba(240,253,250,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(13,148,136,0.08)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .header-left{display:flex;align-items:center;gap:var(--space-3)}
+    .header-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--color-brand),var(--color-brand-light));border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-brand)}
+    .header-icon svg{width:22px;height:22px;color:white}
+    .header-title{font-size:20px;font-weight:700;color:var(--gray-900);letter-spacing:-0.02em}
+    .header-subtitle{font-size:12px;color:var(--gray-500);font-weight:500}
+    .header-actions{display:flex;gap:var(--space-2)}
+    .header-action{width:40px;height:40px;border-radius:var(--radius-md);border:none;background:var(--bg-surface);color:var(--gray-600);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--duration-fast) var(--ease-out);box-shadow:var(--shadow-sm)}
+    .header-action:hover{background:var(--gray-100);transform:scale(1.05)}
+    .header-action:active{transform:scale(0.95)}
+    .header-action svg{width:20px;height:20px}
+    .storage-indicator{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--color-success);padding:2px 8px;border-radius:var(--radius-full);background:var(--color-success-bg);transition:background 0.3s}
+    .storage-indicator svg{width:10px;height:10px}
+
+    .main-content{padding:var(--space-5);padding-bottom:var(--space-8);position:relative;z-index:1}
+    .section-title{font-size:15px;font-weight:700;color:var(--gray-700);margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
+    .section-title svg{width:18px;height:18px;color:var(--color-brand)}
+    .section-title-right{margin-left:auto}
+
+    .tab-bar{display:flex;gap:var(--space-1);background:var(--bg-surface);border-radius:var(--radius-full);padding:3px;margin-bottom:var(--space-5);box-shadow:var(--shadow-sm);border:1px solid rgba(13,148,136,0.06)}
+    .tab-btn{flex:1;padding:10px 8px;border-radius:var(--radius-full);font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all var(--duration-fast) var(--ease-out);background:transparent;color:var(--gray-500);font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;gap:var(--space-2)}
+    .tab-btn svg{width:16px;height:16px}
+    .tab-btn.active{background:linear-gradient(135deg,var(--color-brand),var(--color-brand-light));color:white;box-shadow:var(--shadow-brand)}
+    .tab-btn.active.med-tab{background:linear-gradient(135deg,var(--color-purple),var(--color-purple-light));box-shadow:var(--shadow-purple)}
+    .tab-btn:hover:not(.active){color:var(--gray-700);background:var(--gray-50)}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+
+    .summary-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-6)}
+    .summary-card{background:var(--bg-surface);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;box-shadow:var(--shadow-sm);transition:all var(--duration-normal) var(--ease-out);border:1px solid rgba(13,148,136,0.06);position:relative;overflow:hidden}
+    .summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+    .summary-card.systolic::before{background:linear-gradient(90deg,var(--color-brand),var(--color-brand-light))}
+    .summary-card.diastolic::before{background:linear-gradient(90deg,#3B82F6,#60A5FA)}
+    .summary-card.heartrate::before{background:linear-gradient(90deg,#F43F5E,#FB7185)}
+    .summary-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+    .summary-label{font-size:11px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-1)}
+    .summary-value{font-size:28px;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+    .summary-card.systolic .summary-value{color:var(--color-brand-dark)}
+    .summary-card.diastolic .summary-value{color:#2563EB}
+    .summary-card.heartrate .summary-value{color:#E11D48}
+    .summary-unit{font-size:11px;font-weight:500;color:var(--gray-400);margin-top:2px}
+    .summary-trend{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:600;margin-top:var(--space-1);padding:2px 6px;border-radius:var(--radius-full)}
+    .summary-trend.down{color:var(--color-success);background:var(--color-success-bg)}
+    .summary-trend.up{color:var(--color-danger);background:var(--color-danger-bg)}
+    .summary-trend.flat{color:var(--gray-500);background:var(--gray-100)}
+
+    /* ===== Enhanced Chart ===== */
+    .chart-card{background:var(--bg-surface);border-radius:var(--radius-xl);padding:var(--space-5);margin-bottom:var(--space-6);box-shadow:var(--shadow-md);border:1px solid rgba(13,148,136,0.06)}
+    .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4)}
+    .chart-title{font-size:16px;font-weight:700;color:var(--gray-800)}
+    .chart-period-tabs{display:flex;gap:var(--space-1);background:var(--gray-100);border-radius:var(--radius-full);padding:3px}
+    .chart-tab{padding:4px 12px;border-radius:var(--radius-full);font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all var(--duration-fast) var(--ease-out);background:transparent;color:var(--gray-500);font-family:var(--font-sans)}
+    .chart-tab.active{background:var(--bg-surface);color:var(--color-brand);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+    .chart-tab:hover:not(.active){color:var(--gray-700)}
+
+    /* Interactive Legend Toggles */
+    .chart-toggles{display:flex;gap:var(--space-2);margin-bottom:var(--space-4);flex-wrap:wrap}
+    .chart-toggle{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;transition:all var(--duration-fast);border:1.5px solid var(--gray-200);background:var(--bg-surface);user-select:none}
+    .chart-toggle .dot{width:10px;height:10px;border-radius:50%;transition:all var(--duration-fast)}
+    .chart-toggle .dot.pill{border-radius:2px;width:14px;height:8px}
+    .chart-toggle.active{border-color:currentColor}
+    .chart-toggle.off{opacity:0.4;border-color:var(--gray-200)}
+    .chart-toggle.off .dot{background:var(--gray-300)!important}
+    .chart-toggle:hover{transform:scale(1.03)}
+    .chart-toggle:active{transform:scale(0.97)}
+
+    .chart-container{width:100%;position:relative;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+    .chart-container::-webkit-scrollbar{height:3px}
+    .chart-container::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:2px}
+    .chart-svg{display:block}
+
+    /* Detail Panel (click a data point) */
+    .chart-detail{position:absolute;top:0;right:0;width:180px;background:var(--bg-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:var(--space-4);z-index:20;opacity:0;visibility:hidden;transform:translateY(8px);transition:all var(--duration-normal) var(--ease-out);border:1px solid rgba(13,148,136,0.08);pointer-events:auto}
+    .chart-detail.visible{opacity:1;visibility:visible;transform:translateY(0)}
+    .chart-detail-close{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;border:none;background:var(--gray-100);color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:all var(--duration-fast)}
+    .chart-detail-close:hover{background:var(--gray-200);color:var(--gray-700)}
+    .chart-detail-time{font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:var(--space-3)}
+    .chart-detail-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+    .chart-detail-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .chart-detail-label{font-size:12px;color:var(--gray-500);font-weight:500;flex:1}
+    .chart-detail-val{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums}
+    .chart-detail-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:var(--radius-full);margin-top:var(--space-2)}
+    .chart-detail-meds{margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--gray-100)}
+    .chart-detail-meds-title{font-size:11px;font-weight:600;color:var(--gray-500);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+    .chart-detail-meds-title svg{width:12px;height:12px;color:var(--color-purple)}
+    .chart-detail-med-item{font-size:12px;font-weight:600;color:var(--color-purple);padding:2px 0}
+
+    /* Hover tooltip (lightweight, for quick glance) */
+    .chart-tooltip{position:absolute;background:var(--gray-900);color:white;padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;pointer-events:none;opacity:0;transition:opacity 100ms;z-index:15;white-space:nowrap}
+    .chart-tooltip::after{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--gray-900)}
+
+    /* Vertical scan line on hover */
+    .chart-scanline{position:absolute;top:0;width:1px;background:var(--gray-300);pointer-events:none;opacity:0;transition:opacity 100ms;z-index:5}
+
+    /* BP Banner */
+    .bp-banner{border-radius:var(--radius-xl);padding:var(--space-5);margin-bottom:var(--space-6);position:relative;overflow:hidden}
+    .bp-banner.optimal{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1px solid rgba(16,185,129,0.2)}
+    .bp-banner.normal{background:linear-gradient(135deg,#F0FDFA,#CCFBF1);border:1px solid rgba(20,184,166,0.2)}
+    .bp-banner.elevated{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid rgba(245,158,11,0.2)}
+    .bp-banner.high{background:linear-gradient(135deg,#FFF7ED,#FFEDD5);border:1px solid rgba(249,115,22,0.2)}
+    .bp-banner.crisis{background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border:1px solid rgba(239,68,68,0.2)}
+    .bp-banner-top{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3)}
+    .bp-status-icon{width:44px;height:44px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:22px}
+    .bp-banner.optimal .bp-status-icon{background:rgba(16,185,129,0.15)}
+    .bp-banner.normal .bp-status-icon{background:rgba(20,184,166,0.15)}
+    .bp-banner.elevated .bp-status-icon{background:rgba(245,158,11,0.15)}
+    .bp-banner.high .bp-status-icon{background:rgba(249,115,22,0.15)}
+    .bp-banner.crisis .bp-status-icon{background:rgba(239,68,68,0.15)}
+    .bp-status-label{font-size:18px;font-weight:700}
+    .bp-banner.optimal .bp-status-label{color:#065F46}.bp-banner.normal .bp-status-label{color:#115E59}
+    .bp-banner.elevated .bp-status-label{color:#92400E}.bp-banner.high .bp-status-label{color:#9A3412}
+    .bp-banner.crisis .bp-status-label{color:#991B1B}
+    .bp-status-desc{font-size:13px;font-weight:500;line-height:1.6}
+    .bp-banner.optimal .bp-status-desc{color:#047857}.bp-banner.normal .bp-status-desc{color:#0F766E}
+    .bp-banner.elevated .bp-status-desc{color:#B45309}.bp-banner.high .bp-status-desc{color:#C2410C}
+    .bp-banner.crisis .bp-status-desc{color:#B91C1C}
+    .bp-range-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin-top:var(--space-4)}
+    .bp-range-bar span{flex:1;border-radius:3px;transition:opacity var(--duration-normal)}
+    .bp-range-bar span:nth-child(1){background:var(--bp-optimal)}.bp-range-bar span:nth-child(2){background:var(--bp-normal)}
+    .bp-range-bar span:nth-child(3){background:var(--bp-elevated)}.bp-range-bar span:nth-child(4){background:var(--bp-high1)}
+    .bp-range-bar span:nth-child(5){background:var(--bp-high2)}
+    .bp-range-labels{display:flex;justify-content:space-between;margin-top:var(--space-1);font-size:10px;font-weight:500;color:var(--gray-400)}
+
+    .history-list{display:flex;flex-direction:column;gap:var(--space-3)}
+    .history-item{background:var(--bg-surface);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);box-shadow:var(--shadow-sm);border:1px solid rgba(13,148,136,0.05);transition:all var(--duration-normal) var(--ease-out);display:flex;align-items:center;gap:var(--space-4)}
+    .history-item:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+    .history-indicator{width:4px;height:48px;border-radius:2px;flex-shrink:0}
+    .history-body{flex:1;min-width:0}
+    .history-top{display:flex;align-items:baseline;gap:var(--space-3);margin-bottom:2px;flex-wrap:wrap}
+    .history-bp{font-size:22px;font-weight:800;color:var(--gray-900);letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+    .history-bp span{font-size:16px;font-weight:600;color:var(--gray-400);margin:0 2px}
+    .history-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);white-space:nowrap}
+    .history-meta{display:flex;align-items:center;gap:var(--space-4);font-size:12px;color:var(--gray-500);font-weight:500;flex-wrap:wrap}
+    .history-meta-item{display:flex;align-items:center;gap:4px}
+    .history-meta-item svg{width:14px;height:14px}
+    .history-med-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--radius-full);background:var(--color-purple-bg);color:var(--color-purple)}
+    .history-med-tag svg{width:11px;height:11px}
+    .history-delete{width:28px;height:28px;border-radius:var(--radius-sm);border:none;background:transparent;color:var(--gray-300);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--duration-fast);flex-shrink:0}
+    .history-delete:hover{background:var(--color-danger-bg);color:var(--color-danger)}
+    .history-delete svg{width:15px;height:15px}
+
+    .med-list{display:flex;flex-direction:column;gap:var(--space-3)}
+    .med-item{background:var(--bg-surface);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);box-shadow:var(--shadow-sm);border:1px solid rgba(139,92,246,0.08);transition:all var(--duration-normal) var(--ease-out);display:flex;align-items:center;gap:var(--space-4)}
+    .med-item:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+    .med-icon{width:44px;height:44px;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--color-purple-bg),rgba(139,92,246,0.15));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .med-body{flex:1;min-width:0}
+    .med-name{font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:2px}
+    .med-detail{font-size:12px;color:var(--gray-500);font-weight:500;display:flex;gap:var(--space-3);flex-wrap:wrap}
+    .med-time-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--radius-full);background:var(--color-purple-bg);color:var(--color-purple);white-space:nowrap}
+    .med-actions{display:flex;gap:var(--space-1)}
+    .med-action-btn{width:32px;height:32px;border-radius:var(--radius-sm);border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--duration-fast);color:var(--gray-400)}
+    .med-action-btn:hover{background:var(--gray-100);color:var(--gray-600)}
+    .med-action-btn.delete:hover{background:var(--color-danger-bg);color:var(--color-danger)}
+    .med-action-btn svg{width:16px;height:16px}
+    .med-stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-5)}
+    .med-stat-card{background:var(--bg-surface);border-radius:var(--radius-lg);padding:var(--space-4);box-shadow:var(--shadow-sm);border:1px solid rgba(139,92,246,0.06);text-align:center}
+    .med-stat-value{font-size:24px;font-weight:800;color:var(--color-purple);font-variant-numeric:tabular-nums}
+    .med-stat-label{font-size:11px;font-weight:600;color:var(--gray-500);margin-top:2px}
+
+    .fab-group{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:200;display:flex;gap:var(--space-3)}
+    .fab{background:linear-gradient(135deg,var(--color-brand),var(--color-brand-light));color:white;border:none;border-radius:var(--radius-full);padding:14px 24px;font-size:14px;font-weight:700;font-family:var(--font-sans);cursor:pointer;display:flex;align-items:center;gap:var(--space-2);box-shadow:var(--shadow-brand);transition:all var(--duration-normal) var(--ease-out);white-space:nowrap}
+    .fab:hover{transform:translateY(-2px)}.fab:active{transform:scale(0.96)}
+    .fab svg{width:18px;height:18px}
+    .fab.med-fab{background:linear-gradient(135deg,var(--color-purple),var(--color-purple-light));box-shadow:var(--shadow-purple)}
+
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:all var(--duration-normal) var(--ease-out)}
+    .modal-overlay.active{opacity:1;visibility:visible}
+    .modal{background:var(--bg-surface);border-radius:var(--radius-2xl) var(--radius-2xl) 0 0;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;padding:var(--space-6);transform:translateY(100%);transition:transform var(--duration-slow) var(--ease-out)}
+    .modal-overlay.active .modal{transform:translateY(0)}
+    .modal-handle{width:36px;height:4px;background:var(--gray-300);border-radius:2px;margin:0 auto var(--space-5)}
+    .modal-title{font-size:22px;font-weight:800;color:var(--gray-900);text-align:center;margin-bottom:var(--space-6);letter-spacing:-0.02em}
+    .form-group{margin-bottom:var(--space-5)}
+    .form-label{display:block;font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:var(--space-2)}
+    .input-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--space-3)}
+    .input-row .separator{font-size:24px;font-weight:700;color:var(--gray-300)}
+    .form-input{width:100%;padding:var(--space-3) var(--space-4);border:2px solid var(--gray-200);border-radius:var(--radius-md);font-size:18px;font-weight:700;font-family:var(--font-sans);color:var(--gray-800);text-align:center;background:var(--gray-50);transition:all var(--duration-fast) var(--ease-out);outline:none;font-variant-numeric:tabular-nums}
+    .form-input:focus{border-color:var(--color-brand);background:white;box-shadow:0 0 0 4px rgba(13,148,136,0.1)}
+    .form-input.purple-focus:focus{border-color:var(--color-purple);box-shadow:0 0 0 4px rgba(139,92,246,0.1)}
+    .form-input::placeholder{color:var(--gray-300);font-weight:500}
+    .form-input-single{text-align:left;font-size:15px;font-weight:500;padding:var(--space-3) var(--space-4)}
+    .form-input-icon-wrapper{position:relative}
+    .form-input-icon-wrapper svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--gray-400);pointer-events:none}
+    .form-input-icon-wrapper .form-input-single{padding-left:40px}
+    .form-hint{font-size:12px;color:var(--gray-400);margin-top:var(--space-1);font-weight:500}
+    .bp-quick-classify{text-align:center;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:13px;font-weight:600;margin-top:var(--space-3);transition:all var(--duration-normal) var(--ease-out)}
+    .med-select-group{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+    .med-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--radius-full);font-size:13px;font-weight:600;border:2px solid var(--gray-200);background:var(--gray-50);cursor:pointer;transition:all var(--duration-fast);color:var(--gray-600);user-select:none}
+    .med-chip.selected{border-color:var(--color-purple);background:var(--color-purple-bg);color:var(--color-purple)}
+    .med-chip:hover:not(.selected){border-color:var(--gray-300)}
+    .med-chip svg{width:14px;height:14px}
+    .freq-pills{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .freq-pill{padding:6px 14px;border-radius:var(--radius-full);font-size:13px;font-weight:600;border:2px solid var(--gray-200);background:var(--gray-50);cursor:pointer;transition:all var(--duration-fast);color:var(--gray-600);font-family:var(--font-sans)}
+    .freq-pill.selected{border-color:var(--color-purple);background:var(--color-purple-bg);color:var(--color-purple)}
+    .freq-pill:hover:not(.selected){border-color:var(--gray-300)}
+    .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-top:var(--space-6)}
+    .btn{padding:var(--space-4);border-radius:var(--radius-lg);font-size:15px;font-weight:700;font-family:var(--font-sans);cursor:pointer;border:none;transition:all var(--duration-fast) var(--ease-out);display:flex;align-items:center;justify-content:center;gap:var(--space-2)}
+    .btn:active{transform:scale(0.97)}.btn:disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
+    .btn-primary{background:linear-gradient(135deg,var(--color-brand),var(--color-brand-light));color:white;box-shadow:var(--shadow-brand)}
+    .btn-primary:hover{box-shadow:0 10px 28px rgba(13,148,136,0.35);transform:translateY(-1px)}
+    .btn-primary.purple{background:linear-gradient(135deg,var(--color-purple),var(--color-purple-light));box-shadow:var(--shadow-purple)}
+    .btn-secondary{background:var(--gray-100);color:var(--gray-600)}.btn-secondary:hover{background:var(--gray-200)}
+    .export-bar{display:flex;gap:var(--space-2);margin-bottom:var(--space-5)}
+    .export-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:var(--space-2);padding:10px var(--space-4);border-radius:var(--radius-md);border:1.5px solid var(--gray-200);background:var(--bg-surface);color:var(--gray-600);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:all var(--duration-fast)}
+    .export-btn:hover{border-color:var(--color-brand);color:var(--color-brand);background:var(--color-brand-lightest)}
+    .export-btn:active{transform:scale(0.97)}.export-btn svg{width:16px;height:16px}
+    .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--gray-900);color:white;padding:var(--space-3) var(--space-5);border-radius:var(--radius-full);font-size:14px;font-weight:600;z-index:600;opacity:0;visibility:hidden;transition:all var(--duration-normal) var(--ease-out);display:flex;align-items:center;gap:var(--space-2);white-space:nowrap}
+    .toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+    .confirm-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);backdrop-filter:blur(4px);z-index:700;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all var(--duration-fast)}
+    .confirm-overlay.active{opacity:1;visibility:visible}
+    .confirm-box{background:white;border-radius:var(--radius-xl);padding:var(--space-6);width:85%;max-width:320px;text-align:center;transform:scale(0.9);transition:transform var(--duration-normal) var(--ease-out)}
+    .confirm-overlay.active .confirm-box{transform:scale(1)}
+    .confirm-title{font-size:17px;font-weight:700;color:var(--gray-800);margin-bottom:var(--space-2)}
+    .confirm-desc{font-size:14px;color:var(--gray-500);margin-bottom:var(--space-5)}
+    .confirm-actions{display:flex;gap:var(--space-3)}.confirm-actions .btn{flex:1;padding:var(--space-3)}
+    .empty-state{text-align:center;padding:var(--space-12) var(--space-6)}
+    .empty-state-icon{width:80px;height:80px;margin:0 auto var(--space-4);border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .empty-state-icon svg{width:36px;height:36px}
+    .empty-state-title{font-size:16px;font-weight:700;color:var(--gray-700);margin-bottom:var(--space-2)}
+    .empty-state-desc{font-size:13px;color:var(--gray-500)}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .animate-in{animation:fadeInUp 0.5s var(--ease-out) backwards}
+    .delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:2px}
+
+    /* Selected point highlight ring */
+    @keyframes pulse-ring{0%{r:12;opacity:0.6}100%{r:20;opacity:0}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="header"><div class="header-inner"><div class="header-left"><div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div><div><div class="header-title">血压记录</div><div class="header-subtitle">守护心血管健康 <span class="storage-indicator" id="storage-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>已本地存储</span></div></div></div><div class="header-actions"><button class="header-action" onclick="exportCSV('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button class="header-action" onclick="showToast('⚙️','设置功能开发中')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button></div></div></header>
+
+  <main class="main-content">
+    <div class="tab-bar animate-in"><button class="tab-btn active" data-tab="bp" onclick="switchTab('bp')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>血压记录</button><button class="tab-btn med-tab" data-tab="med" onclick="switchTab('med')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>用药记录</button></div>
+
+    <div class="tab-panel active" id="panel-bp">
+      <section class="animate-in delay-1"><div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>最近平均值</div>
+        <div class="summary-row"><div class="summary-card systolic"><div class="summary-label">收缩压</div><div class="summary-value" id="avg-systolic">--</div><div class="summary-unit">mmHg</div><div class="summary-trend flat" id="trend-sys">--</div></div><div class="summary-card diastolic"><div class="summary-label">舒张压</div><div class="summary-value" id="avg-diastolic">--</div><div class="summary-unit">mmHg</div><div class="summary-trend flat" id="trend-dia">--</div></div><div class="summary-card heartrate"><div class="summary-label">心率</div><div class="summary-value" id="avg-heartrate">--</div><div class="summary-unit">bpm</div><div class="summary-trend flat" id="trend-hr">--</div></div></div></section>
+
+      <section class="animate-in delay-2"><div class="bp-banner normal" id="bp-banner"><div class="bp-banner-top"><div class="bp-status-icon" id="bp-emoji">💚</div><div><div class="bp-status-label" id="bp-status-label">暂无数据</div></div></div><div class="bp-status-desc" id="bp-status-desc">点击下方按钮开始记录血压数据。</div><div class="bp-range-bar"><span></span><span></span><span></span><span></span><span></span></div><div class="bp-range-labels"><span>最优</span><span>正常</span><span>偏高</span><span>高血压I</span><span>高血压II</span></div></div></section>
+
+      <!-- Enhanced Chart -->
+      <section class="chart-card animate-in delay-3">
+        <div class="chart-header"><div class="chart-title">趋势图表</div><div class="chart-period-tabs"><button class="chart-tab active" data-period="week">7天</button><button class="chart-tab" data-period="month">30天</button></div></div>
+        <!-- Interactive toggles -->
+        <div class="chart-toggles" id="chart-toggles">
+          <div class="chart-toggle active" data-series="systolic" style="color:#0D9488" onclick="toggleSeries(this)"><span class="dot" style="background:#0D9488"></span>收缩压</div>
+          <div class="chart-toggle active" data-series="diastolic" style="color:#3B82F6" onclick="toggleSeries(this)"><span class="dot" style="background:#3B82F6"></span>舒张压</div>
+          <div class="chart-toggle active" data-series="heartrate" style="color:#F43F5E" onclick="toggleSeries(this)"><span class="dot" style="background:#F43F5E"></span>心率</div>
+          <div class="chart-toggle active" data-series="meds" style="color:#8B5CF6" onclick="toggleSeries(this)"><span class="dot pill" style="background:#8B5CF6"></span>用药</div>
+        </div>
+        <div style="position:relative">
+          <div class="chart-container" id="chart-container"><svg class="chart-svg" id="chart-svg"></svg></div>
+          <div class="chart-scanline" id="chart-scanline"></div>
+          <div class="chart-tooltip" id="chart-tooltip"></div>
+          <div class="chart-detail" id="chart-detail">
+            <button class="chart-detail-close" onclick="hideDetail()">×</button>
+            <div id="chart-detail-content"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="export-bar animate-in delay-4"><button class="export-btn" onclick="exportCSV('bp')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>导出血压 CSV</button><button class="export-btn" onclick="exportCSV('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出全部 CSV</button></div>
+
+      <section class="animate-in delay-4"><div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>历史记录<div class="section-title-right"><span style="font-size:12px;font-weight:500;color:var(--gray-400)" id="record-count"></span></div></div><div class="history-list" id="history-list"></div></section>
+    </div>
+
+    <div class="tab-panel" id="panel-med">
+      <div class="med-stats animate-in delay-1"><div class="med-stat-card"><div class="med-stat-value" id="med-total-count">0</div><div class="med-stat-label">用药种类</div></div><div class="med-stat-card"><div class="med-stat-value" id="med-today-count">0</div><div class="med-stat-label">今日已服</div></div></div>
+      <div class="export-bar animate-in delay-2"><button class="export-btn" onclick="exportCSV('med')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>导出用药记录 CSV</button></div>
+      <section class="animate-in delay-2"><div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>我的用药</div><div class="med-list" id="med-list"></div></section>
+      <section class="animate-in delay-3" style="margin-top:var(--space-6)"><div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>服药日志</div><div class="history-list" id="med-log-list"></div></section>
+    </div>
+  </main>
+
+  <div class="fab-group"><button class="fab" id="fab-bp" onclick="openModal('bp')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>记录血压</button><button class="fab med-fab" id="fab-med" onclick="openModal('med')" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加用药</button></div>
+
+
+  <!-- BP Modal -->
+  <div class="modal-overlay" id="modal-bp" onclick="handleOverlayClick(event,'bp')"><div class="modal" onclick="event.stopPropagation()"><div class="modal-handle"></div><h2 class="modal-title">记录血压</h2>
+    <div class="form-group"><label class="form-label">血压值 (mmHg)</label><div class="input-row"><input type="number" class="form-input" id="input-systolic" placeholder="120" min="60" max="260" inputmode="numeric" oninput="onBPInput()"><span class="separator">/</span><input type="number" class="form-input" id="input-diastolic" placeholder="80" min="30" max="160" inputmode="numeric" oninput="onBPInput()"></div><div class="form-hint">收缩压 / 舒张压</div><div class="bp-quick-classify" id="bp-quick-classify" style="display:none"></div></div>
+    <div class="form-group"><label class="form-label">心率 (bpm)</label><div class="form-input-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><input type="number" class="form-input form-input-single" id="input-heartrate" placeholder="72" min="30" max="220" inputmode="numeric"></div></div>
+    <div class="form-group"><label class="form-label">测量时间</label><div class="form-input-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><input type="datetime-local" class="form-input form-input-single" id="input-time"></div></div>
+    <div class="form-group"><label class="form-label">已服用药物（可多选）</label><div class="med-select-group" id="med-chips"></div><div class="form-hint" id="med-chips-hint">请先在"用药记录"中添加药物</div></div>
+    <div class="form-group"><label class="form-label">备注（可选）</label><div class="form-input-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><input type="text" class="form-input form-input-single" id="input-note" placeholder="如：饭后、运动后"></div></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('bp')">取消</button><button class="btn btn-primary" onclick="saveBPRecord()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>保存</button></div>
+  </div></div>
+
+  <!-- Med Modal -->
+  <div class="modal-overlay" id="modal-med" onclick="handleOverlayClick(event,'med')"><div class="modal" onclick="event.stopPropagation()"><div class="modal-handle"></div><h2 class="modal-title">添加用药</h2>
+    <div class="form-group"><label class="form-label">药品名称</label><div class="form-input-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg><input type="text" class="form-input form-input-single purple-focus" id="input-med-name" placeholder="如：氨氯地平"></div></div>
+    <div class="form-group"><label class="form-label">剂量</label><div class="form-input-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><input type="text" class="form-input form-input-single purple-focus" id="input-med-dosage" placeholder="如：5mg"></div></div>
+    <div class="form-group"><label class="form-label">服用频率</label><div class="freq-pills"><button class="freq-pill selected" data-freq="每日一次" onclick="selectFreq(this)">每日一次</button><button class="freq-pill" data-freq="每日两次" onclick="selectFreq(this)">每日两次</button><button class="freq-pill" data-freq="每日三次" onclick="selectFreq(this)">每日三次</button><button class="freq-pill" data-freq="按需服用" onclick="selectFreq(this)">按需服用</button></div></div>
+    <div class="form-group"><label class="form-label">服药时段</label><div class="freq-pills" id="time-pills"><button class="freq-pill selected" data-time="早晨" onclick="selectTimePill(this)">🌅 早晨</button><button class="freq-pill" data-time="中午" onclick="selectTimePill(this)">☀️ 中午</button><button class="freq-pill" data-time="晚上" onclick="selectTimePill(this)">🌙 晚上</button><button class="freq-pill" data-time="睡前" onclick="selectTimePill(this)">😴 睡前</button></div></div>
+    <div class="form-group"><label class="form-label">备注（可选）</label><div class="form-input-icon-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><input type="text" class="form-input form-input-single purple-focus" id="input-med-note" placeholder="如：需空腹服用"></div></div>
+    <div class="form-actions"><button class="btn btn-secondary" onclick="closeModal('med')">取消</button><button class="btn btn-primary purple" onclick="saveMedRecord()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>保存</button></div>
+  </div></div>
+
+  <div class="toast" id="toast"><span id="toast-icon"></span><span id="toast-text"></span></div>
+  <div class="confirm-overlay" id="confirm-overlay"><div class="confirm-box"><div class="confirm-title" id="confirm-title">确认删除？</div><div class="confirm-desc" id="confirm-desc">此操作不可撤销。</div><div class="confirm-actions"><button class="btn btn-secondary" onclick="closeConfirm()">取消</button><button class="btn btn-primary" id="confirm-ok" style="background:var(--color-danger);box-shadow:none;">确认</button></div></div></div>
+</div>
+
+<script>
+const SK={bp:'bp_app_records',med:'bp_app_medications',medLogs:'bp_app_med_logs',nBp:'bp_app_next_bp_id',nMed:'bp_app_next_med_id',nLog:'bp_app_next_log_id'};
+function loadData(){try{const b=JSON.parse(localStorage.getItem(SK.bp)),m=JSON.parse(localStorage.getItem(SK.med)),l=JSON.parse(localStorage.getItem(SK.medLogs));return{bpRecords:Array.isArray(b)?b:defBP(),medications:Array.isArray(m)?m:defMed(),medLogs:Array.isArray(l)?l:defLogs(),nBp:parseInt(localStorage.getItem(SK.nBp))||11,nMed:parseInt(localStorage.getItem(SK.nMed))||4,nLog:parseInt(localStorage.getItem(SK.nLog))||6};}catch{return{bpRecords:defBP(),medications:defMed(),medLogs:defLogs(),nBp:11,nMed:4,nLog:6};}}
+function defBP(){return[{id:1,systolic:118,diastolic:76,heartrate:68,time:'2026-04-21T08:30',note:'晨起',meds:['氨氯地平']},{id:2,systolic:132,diastolic:86,heartrate:75,time:'2026-04-20T19:00',note:'饭后',meds:[]},{id:3,systolic:125,diastolic:82,heartrate:70,time:'2026-04-20T08:15',note:'晨起',meds:['氨氯地平']},{id:4,systolic:128,diastolic:84,heartrate:73,time:'2026-04-19T20:30',note:'',meds:[]},{id:5,systolic:135,diastolic:88,heartrate:78,time:'2026-04-19T07:45',note:'运动后',meds:['氨氯地平','缬沙坦']},{id:6,systolic:122,diastolic:79,heartrate:69,time:'2026-04-18T08:00',note:'晨起',meds:['氨氯地平']},{id:7,systolic:130,diastolic:85,heartrate:74,time:'2026-04-17T19:30',note:'',meds:[]},{id:8,systolic:120,diastolic:78,heartrate:71,time:'2026-04-17T07:30',note:'晨起',meds:['氨氯地平']},{id:9,systolic:138,diastolic:90,heartrate:80,time:'2026-04-16T18:00',note:'加班后',meds:[]},{id:10,systolic:124,diastolic:80,heartrate:72,time:'2026-04-16T08:00',note:'',meds:['氨氯地平']}];}
+function defMed(){return[{id:1,name:'氨氯地平',dosage:'5mg',frequency:'每日一次',timePeriod:'早晨',note:'钙通道阻滞剂',active:true},{id:2,name:'缬沙坦',dosage:'80mg',frequency:'每日一次',timePeriod:'早晨',note:'ARB类降压药',active:true},{id:3,name:'氢氯噻嗪',dosage:'12.5mg',frequency:'每日一次',timePeriod:'早晨',note:'利尿剂',active:false}];}
+function defLogs(){return[{id:1,medId:1,medName:'氨氯地平',dosage:'5mg',time:'2026-04-21T07:30',note:''},{id:2,medId:2,medName:'缬沙坦',dosage:'80mg',time:'2026-04-21T07:30',note:''},{id:3,medId:1,medName:'氨氯地平',dosage:'5mg',time:'2026-04-20T07:45',note:''},{id:4,medId:1,medName:'氨氯地平',dosage:'5mg',time:'2026-04-19T08:00',note:''},{id:5,medId:2,medName:'缬沙坦',dosage:'80mg',time:'2026-04-19T08:00',note:''}];}
+let D=loadData();
+function saveAll(){try{localStorage.setItem(SK.bp,JSON.stringify(D.bpRecords));localStorage.setItem(SK.med,JSON.stringify(D.medications));localStorage.setItem(SK.medLogs,JSON.stringify(D.medLogs));localStorage.setItem(SK.nBp,D.nBp);localStorage.setItem(SK.nMed,D.nMed);localStorage.setItem(SK.nLog,D.nLog);const i=document.getElementById('storage-indicator');i.style.background='#A7F3D0';setTimeout(()=>i.style.background='',500);}catch(e){}}
+function classifyBP(s,d){if(s<120&&d<80)return{level:'optimal',label:'最优血压',emoji:'💚',color:'#10B981',bg:'#D1FAE5',desc:'血压非常理想，请继续保持。'};if(s<130&&d<85)return{level:'normal',label:'血压正常',emoji:'💚',color:'#0D9488',bg:'#CCFBF1',desc:'血压正常范围，继续保持健康习惯。'};if(s<140&&d<90)return{level:'elevated',label:'血压偏高',emoji:'⚠️',color:'#D97706',bg:'#FEF3C7',desc:'血压偏高，建议减少盐分，增加运动。'};if(s<160&&d<100)return{level:'high',label:'高血压 I 期',emoji:'🔶',color:'#EA580C',bg:'#FFEDD5',desc:'高血压 I 期，建议就医咨询。'};return{level:'crisis',label:'高血压 II 期',emoji:'🔴',color:'#DC2626',bg:'#FEE2E2',desc:'血压较高，请立即咨询医生。'};}
+
+let currentTab='bp';
+function switchTab(t){currentTab=t;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+t));document.getElementById('fab-bp').style.display=t==='bp'?'flex':'none';document.getElementById('fab-med').style.display=t==='med'?'flex':'none';}
+function renderAll(){renderSummary();renderBanner();renderHistory();renderChart();renderMedList();renderMedLogs();renderMedChips();}
+function renderSummary(){const r=D.bpRecords;if(!r.length){['avg-systolic','avg-diastolic','avg-heartrate'].forEach(id=>document.getElementById(id).textContent='--');return;}const rc=r.slice(0,7);const av=k=>Math.round(rc.reduce((s,x)=>s+x[k],0)/rc.length);document.getElementById('avg-systolic').textContent=av('systolic');document.getElementById('avg-diastolic').textContent=av('diastolic');document.getElementById('avg-heartrate').textContent=av('heartrate');if(rc.length>=4){const m=Math.floor(rc.length/2),nw=rc.slice(0,m),ol=rc.slice(m);const tc=k=>{const n=nw.reduce((s,x)=>s+x[k],0)/nw.length,o=ol.reduce((s,x)=>s+x[k],0)/ol.length;return Math.round(n-o);};setTrend('trend-sys',tc('systolic'));setTrend('trend-dia',tc('diastolic'));setTrend('trend-hr',tc('heartrate'));}}
+function setTrend(id,v){const e=document.getElementById(id);if(v<0){e.className='summary-trend down';e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>${v}`;}else if(v>0){e.className='summary-trend up';e.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 15 6-6 6 6"/></svg>+${v}`;}else{e.className='summary-trend flat';e.innerHTML='0';}}
+function renderBanner(){if(!D.bpRecords.length)return;const r=D.bpRecords[0],c=classifyBP(r.systolic,r.diastolic),b=document.getElementById('bp-banner');b.className='bp-banner '+c.level;document.getElementById('bp-status-label').textContent=c.label;document.getElementById('bp-status-desc').textContent=c.desc;document.getElementById('bp-emoji').textContent=c.emoji;const bars=b.querySelectorAll('.bp-range-bar span'),lvls=['optimal','normal','elevated','high','crisis'],idx=lvls.indexOf(c.level);bars.forEach((bar,i)=>{bar.style.opacity=i===idx?'1':'0.25';bar.style.height=i===idx?'8px':'6px';});}
+function renderHistory(){const l=document.getElementById('history-list'),r=D.bpRecords;document.getElementById('record-count').textContent=`共 ${r.length} 条`;if(!r.length){l.innerHTML='<div class="empty-state"><div class="empty-state-icon" style="background:var(--color-brand-lightest)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--color-brand)" stroke-width="1.5"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div><div class="empty-state-title">暂无记录</div><div class="empty-state-desc">点击下方按钮开始记录血压</div></div>';return;}l.innerHTML=r.map((rec,i)=>{const c=classifyBP(rec.systolic,rec.diastolic),dt=new Date(rec.time),mt=(rec.meds||[]).map(m=>`<span class="history-med-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/></svg>${m}</span>`).join('');return`<div class="history-item" style="animation:fadeInUp .4s var(--ease-out) ${i*.03}s backwards"><div class="history-indicator" style="background:${c.color}"></div><div class="history-body"><div class="history-top"><div class="history-bp">${rec.systolic}<span>/</span>${rec.diastolic}</div><span class="history-badge" style="background:${c.bg};color:${c.color}">${c.label}</span>${mt}</div><div class="history-meta"><span class="history-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${fmtDate(dt)} ${dt.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}</span><span class="history-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>${rec.heartrate} bpm</span>${rec.note?`<span class="history-meta-item" style="color:var(--gray-400)">${rec.note}</span>`:''}</div></div><button class="history-delete" onclick="event.stopPropagation();confirmDeleteBP(${rec.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button></div>`;}).join('');}
+function renderMedList(){const l=document.getElementById('med-list'),m=D.medications;document.getElementById('med-total-count').textContent=m.filter(x=>x.active).length;const td=new Date().toISOString().slice(0,10);document.getElementById('med-today-count').textContent=D.medLogs.filter(x=>x.time.slice(0,10)===td).length;if(!m.length){l.innerHTML='<div class="empty-state"><div class="empty-state-icon" style="background:var(--color-purple-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--color-purple)" stroke-width="1.5"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg></div><div class="empty-state-title">暂无用药</div><div class="empty-state-desc">添加您正在服用的降压药物</div></div>';return;}l.innerHTML=m.map(x=>`<div class="med-item" style="opacity:${x.active?1:0.5}"><div class="med-icon">💊</div><div class="med-body"><div class="med-name">${x.name}${!x.active?' <span style="font-size:11px;color:var(--gray-400)">(已停用)</span>':''}</div><div class="med-detail"><span>${x.dosage}</span><span>${x.frequency}</span>${x.note?`<span style="color:var(--gray-400)">${x.note}</span>`:''}</div></div><span class="med-time-badge">${x.timePeriod}</span><div class="med-actions"><button class="med-action-btn" onclick="toggleMed(${x.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${x.active?'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>':'<polyline points="20 6 9 17 4 12"/>'}</svg></button><button class="med-action-btn delete" onclick="confirmDeleteMed(${x.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button></div></div>`).join('');}
+function renderMedLogs(){const l=document.getElementById('med-log-list'),lg=D.medLogs.slice(0,20);if(!lg.length){l.innerHTML='<div class="empty-state"><div class="empty-state-icon" style="background:var(--color-purple-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--color-purple)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="empty-state-title">暂无服药日志</div><div class="empty-state-desc">记录血压时选择已服药物即可自动生成</div></div>';return;}l.innerHTML=lg.map((x,i)=>{const dt=new Date(x.time);return`<div class="history-item" style="animation:fadeInUp .4s var(--ease-out) ${i*.03}s backwards;border-left:3px solid var(--color-purple)"><div style="width:38px;height:38px;border-radius:var(--radius-md);background:var(--color-purple-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💊</div><div class="history-body"><div style="font-size:15px;font-weight:700;color:var(--gray-800)">${x.medName} <span style="font-size:12px;font-weight:500;color:var(--gray-400)">${x.dosage}</span></div><div class="history-meta"><span class="history-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${fmtDate(dt)} ${dt.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}</span></div></div></div>`;}).join('');}
+function renderMedChips(){const a=document.getElementById('med-chips'),h=document.getElementById('med-chips-hint'),ac=D.medications.filter(m=>m.active);if(!ac.length){a.innerHTML='';h.style.display='block';return;}h.style.display='none';a.innerHTML=ac.map(m=>`<div class="med-chip" data-med-name="${m.name}" onclick="this.classList.toggle('selected')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/></svg>${m.name}</div>`).join('');}
+function fmtDate(dt){const t=new Date(),y=new Date(t);y.setDate(y.getDate()-1);if(dt.toDateString()===t.toDateString())return'今天';if(dt.toDateString()===y.toDateString())return'昨天';return`${dt.getMonth()+1}月${dt.getDate()}日`;}
+
+// ===================== ENHANCED INTERACTIVE CHART =====================
+let chartSeriesVisible={systolic:true,diastolic:true,heartrate:true,meds:true};
+let selectedPointIdx=null;
+let currentChartData=[];
+
+function toggleSeries(el){
+  const s=el.dataset.series;
+  chartSeriesVisible[s]=!chartSeriesVisible[s];
+  el.classList.toggle('active',chartSeriesVisible[s]);
+  el.classList.toggle('off',!chartSeriesVisible[s]);
+  hideDetail();
+  renderChart();
+}
+
+function renderChart(){
+  const svg=document.getElementById('chart-svg');
+  const period=document.querySelector('.chart-tab.active').dataset.period;
+  const count=period==='week'?14:60; // allow more points since one day can have multiple
+  const cd=[...D.bpRecords].reverse().slice(-count);
+  currentChartData=cd;
+
+  if(cd.length<2){svg.setAttribute('viewBox','0 0 360 220');svg.innerHTML='<text x="180" y="110" text-anchor="middle" fill="#94A3B8" font-size="14" font-family="var(--font-sans)">需要至少 2 条记录</text>';return;}
+
+  // Dynamic width: each point gets 50px min, scrollable if many
+  const ptSpacing=Math.max(50, 340/(cd.length-1));
+  const W=Math.max(380, 40+cd.length*ptSpacing);
+  const H=260;
+  const padL=40,padR=16,padT=16,padB=72;
+  const cW=W-padL-padR,cH=H-padT-padB;
+
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.style.width=W>390?(W+'px'):'100%';
+  svg.style.height='100%';
+
+  const vis=chartSeriesVisible;
+  const keys=[];
+  if(vis.systolic)keys.push('systolic');if(vis.diastolic)keys.push('diastolic');if(vis.heartrate)keys.push('heartrate');
+  const allVals=cd.flatMap(d=>keys.map(k=>d[k]));
+  if(!allVals.length){svg.innerHTML='<text x="'+W/2+'" y="110" text-anchor="middle" fill="#94A3B8" font-size="14">请至少选中一项数据</text>';return;}
+  const minV=Math.floor(Math.min(...allVals)/10)*10-10;
+  const maxV=Math.ceil(Math.max(...allVals)/10)*10+10;
+  const xStep=cW/(cd.length-1);
+  const sY=v=>padT+cH-((v-minV)/(maxV-minV))*cH;
+  const sX=i=>padL+i*xStep;
+
+  let html='';
+
+  // Grid
+  for(let i=0;i<=4;i++){const y=padT+(cH/4)*i;const val=Math.round(maxV-(i/4)*(maxV-minV));html+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#E2E8F0" stroke-width="0.5" stroke-dasharray="4 3"/><text x="${padL-6}" y="${y+4}" text-anchor="end" fill="#94A3B8" font-size="10" font-family="var(--font-sans)">${val}</text>`;}
+
+  // X labels: date + exact time for each point
+  cd.forEach((d,i)=>{
+    const x=sX(i);const dt=new Date(d.time);
+    const dateLabel=`${dt.getMonth()+1}/${dt.getDate()}`;
+    const timeLabel=`${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    html+=`<text x="${x}" y="${H-padB+16}" text-anchor="middle" fill="#94A3B8" font-size="9" font-weight="600" font-family="var(--font-sans)">${dateLabel}</text>`;
+    html+=`<text x="${x}" y="${H-padB+28}" text-anchor="middle" fill="#CBD5E1" font-size="8" font-family="var(--font-sans)">${timeLabel}</text>`;
+  });
+
+  // Normal range bg
+  const yH=sY(Math.min(maxV,135)),yL=sY(Math.max(minV,80));
+  if(vis.systolic||vis.diastolic)html+=`<rect x="${padL}" y="${yH}" width="${cW}" height="${Math.max(0,yL-yH)}" fill="rgba(13,148,136,0.035)" rx="4"/>`;
+
+  // Medication columns
+  if(vis.meds){cd.forEach((d,i)=>{if(d.meds&&d.meds.length>0){const x=sX(i);html+=`<rect x="${x-10}" y="${padT}" width="20" height="${cH}" fill="rgba(139,92,246,0.05)" rx="6"/>`;html+=`<line x1="${x}" y1="${padT}" x2="${x}" y2="${padT+cH}" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 4" opacity="0.3"/>`;}});}
+
+  // Lines
+  const colors={systolic:'#0D9488',diastolic:'#3B82F6',heartrate:'#F43F5E'};
+  function drawLine(key,color){
+    if(!vis[key])return;
+    const pts=cd.map((d,i)=>({x:sX(i),y:sY(d[key])}));
+    let path=`M${pts[0].x},${pts[0].y}`;
+    for(let i=1;i<pts.length;i++){const p=pts[i-1],c=pts[i],cx=(p.x+c.x)/2;path+=` C${cx},${p.y} ${cx},${c.y} ${c.x},${c.y}`;}
+    html+=`<path d="${path} L${pts[pts.length-1].x},${padT+cH} L${pts[0].x},${padT+cH} Z" fill="${color}" opacity="0.06"/>`;
+    html+=`<path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>`;
+    pts.forEach((p,i)=>{
+      const isSelected=selectedPointIdx===i;
+      const hasMed=vis.meds&&cd[i].meds&&cd[i].meds.length>0;
+      if(hasMed)html+=`<circle cx="${p.x}" cy="${p.y}" r="8" fill="none" stroke="#8B5CF6" stroke-width="1.5" opacity="0.45"/>`;
+      if(isSelected){
+        html+=`<circle cx="${p.x}" cy="${p.y}" r="14" fill="${color}" opacity="0.12"><animate attributeName="r" values="10;18;10" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.15;0.03;0.15" dur="2s" repeatCount="indefinite"/></circle>`;
+        html+=`<circle cx="${p.x}" cy="${p.y}" r="6" fill="${color}" stroke="white" stroke-width="2.5"/>`;
+      }else{
+        html+=`<circle cx="${p.x}" cy="${p.y}" r="4" fill="white" stroke="${color}" stroke-width="2.5"/>`;
+      }
+    });
+  }
+  drawLine('heartrate',colors.heartrate);
+  drawLine('diastolic',colors.diastolic);
+  drawLine('systolic',colors.systolic);
+
+  // Med pill icons at bottom
+  if(vis.meds){cd.forEach((d,i)=>{if(d.meds&&d.meds.length>0){const x=sX(i),py=H-padB+42;html+=`<rect x="${x-7}" y="${py}" width="14" height="10" rx="5" fill="#8B5CF6" opacity="0.8"/>`;html+=`<line x1="${x}" y1="${py+2}" x2="${x}" y2="${py+8}" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>`;if(d.meds.length>1){html+=`<circle cx="${x+8}" cy="${py}" r="6" fill="#8B5CF6"/>`;html+=`<text x="${x+8}" y="${py+3.5}" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="var(--font-sans)">${d.meds.length}</text>`;}}});}
+
+  // Invisible clickable hit areas per data point (full column)
+  cd.forEach((d,i)=>{
+    const x=sX(i);
+    html+=`<rect x="${x-ptSpacing/2}" y="${padT}" width="${ptSpacing}" height="${cH+padB}" fill="transparent" class="chart-hit" data-idx="${i}" style="cursor:pointer"/>`;
+  });
+
+  svg.innerHTML=html;
+
+  // Event handlers
+  const tooltip=document.getElementById('chart-tooltip');
+  const scanline=document.getElementById('chart-scanline');
+  const container=document.getElementById('chart-container');
+  const svgEl=svg;
+
+  function getSvgScale(){const r=svgEl.getBoundingClientRect();return{fx:r.width/W,fy:r.height/H,ox:r.left-container.getBoundingClientRect().left+container.scrollLeft};}
+
+  svgEl.querySelectorAll('.chart-hit').forEach(hit=>{
+    hit.addEventListener('mouseenter',function(e){
+      const idx=parseInt(this.dataset.idx);const rec=cd[idx];const sc=getSvgScale();const x=sX(idx);
+      // Scanline
+      scanline.style.left=(x*sc.fx+sc.ox)+'px';scanline.style.top='0';scanline.style.height=container.offsetHeight+'px';scanline.style.opacity='1';
+      // Tooltip — brief
+      const dt=new Date(rec.time);
+      let tip=`${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+      if(vis.systolic)tip+=`\n收缩压 ${rec.systolic}`;if(vis.diastolic)tip+=` / 舒张压 ${rec.diastolic}`;if(vis.heartrate)tip+=` / 心率 ${rec.heartrate}`;
+      tooltip.innerHTML=tip.replace(/\n/g,'<br>');tooltip.style.opacity='1';
+      const px=x*sc.fx+sc.ox;tooltip.style.left=Math.max(0,Math.min(px-tooltip.offsetWidth/2,container.parentElement.offsetWidth-tooltip.offsetWidth-8))+'px';
+      const topY=vis.systolic?sY(rec.systolic):vis.diastolic?sY(rec.diastolic):sY(rec.heartrate);
+      tooltip.style.top=(topY*sc.fy-tooltip.offsetHeight-12)+'px';
+    });
+    hit.addEventListener('mouseleave',function(){tooltip.style.opacity='0';scanline.style.opacity='0';});
+    hit.addEventListener('click',function(){
+      const idx=parseInt(this.dataset.idx);
+      selectedPointIdx=(selectedPointIdx===idx)?null:idx;
+      renderChart();
+      if(selectedPointIdx!==null)showDetail(idx);else hideDetail();
+    });
+  });
+}
+
+function showDetail(idx){
+  const rec=currentChartData[idx];if(!rec)return;
+  const dt=new Date(rec.time);const c=classifyBP(rec.systolic,rec.diastolic);
+  const dateStr=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  const timeStr=`${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+  let html=`<div class="chart-detail-time">📅 ${dateStr}　🕐 ${timeStr}</div>`;
+  html+=`<div class="chart-detail-row"><span class="chart-detail-dot" style="background:#0D9488"></span><span class="chart-detail-label">收缩压</span><span class="chart-detail-val" style="color:#0D9488">${rec.systolic}</span></div>`;
+  html+=`<div class="chart-detail-row"><span class="chart-detail-dot" style="background:#3B82F6"></span><span class="chart-detail-label">舒张压</span><span class="chart-detail-val" style="color:#3B82F6">${rec.diastolic}</span></div>`;
+  html+=`<div class="chart-detail-row"><span class="chart-detail-dot" style="background:#F43F5E"></span><span class="chart-detail-label">心率</span><span class="chart-detail-val" style="color:#F43F5E">${rec.heartrate}</span></div>`;
+  html+=`<div class="chart-detail-badge" style="background:${c.bg};color:${c.color}">${c.emoji} ${c.label}</div>`;
+  if(rec.note)html+=`<div style="font-size:12px;color:var(--gray-500);margin-top:6px">📝 ${rec.note}</div>`;
+  if(rec.meds&&rec.meds.length>0){
+    html+=`<div class="chart-detail-meds"><div class="chart-detail-meds-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/></svg>已服药物</div>`;
+    rec.meds.forEach(m=>{html+=`<div class="chart-detail-med-item">💊 ${m}</div>`;});
+    html+=`</div>`;
+  }
+  document.getElementById('chart-detail-content').innerHTML=html;
+  document.getElementById('chart-detail').classList.add('visible');
+}
+function hideDetail(){document.getElementById('chart-detail').classList.remove('visible');if(selectedPointIdx!==null){selectedPointIdx=null;renderChart();}}
+
+// ===================== MODALS =====================
+function openModal(t){document.getElementById('modal-'+t).classList.add('active');document.body.style.overflow='hidden';if(t==='bp'){document.getElementById('input-time').value=new Date().toISOString().slice(0,16);['input-systolic','input-diastolic','input-heartrate','input-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('bp-quick-classify').style.display='none';renderMedChips();}if(t==='med'){['input-med-name','input-med-dosage','input-med-note'].forEach(id=>document.getElementById(id).value='');document.querySelectorAll('.freq-pill').forEach(p=>p.classList.remove('selected'));document.querySelector('.freq-pill[data-freq="每日一次"]').classList.add('selected');document.querySelector('.freq-pill[data-time="早晨"]').classList.add('selected');}}
+function closeModal(t){document.getElementById('modal-'+t).classList.remove('active');document.body.style.overflow='';}
+function handleOverlayClick(e,t){if(e.target===e.currentTarget)closeModal(t);}
+function onBPInput(){const s=parseInt(document.getElementById('input-systolic').value),d=parseInt(document.getElementById('input-diastolic').value);const el=document.getElementById('bp-quick-classify');if(s>0&&d>0){const c=classifyBP(s,d);el.style.display='block';el.style.background=c.bg;el.style.color=c.color;el.textContent=`${c.emoji} ${c.label}  (${s}/${d} mmHg)`;}else el.style.display='none';}
+function selectFreq(el){el.parentElement.querySelectorAll('.freq-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
+function selectTimePill(el){document.getElementById('time-pills').querySelectorAll('.freq-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
+
+function saveBPRecord(){const s=parseInt(document.getElementById('input-systolic').value),d=parseInt(document.getElementById('input-diastolic').value),hr=parseInt(document.getElementById('input-heartrate').value),time=document.getElementById('input-time').value,note=document.getElementById('input-note').value.trim();if(!s||!d||s<60||s>260||d<30||d>160){showToast('⚠️','请输入有效的血压值');return;}if(!hr||hr<30||hr>220){showToast('⚠️','请输入有效的心率');return;}if(!time){showToast('⚠️','请选择测量时间');return;}const sm=[...document.querySelectorAll('.med-chip.selected')].map(c=>c.dataset.medName);D.bpRecords.unshift({id:D.nBp++,systolic:s,diastolic:d,heartrate:hr,time,note,meds:sm});D.bpRecords.sort((a,b)=>new Date(b.time)-new Date(a.time));sm.forEach(n=>{const med=D.medications.find(m=>m.name===n);D.medLogs.unshift({id:D.nLog++,medId:med?med.id:0,medName:n,dosage:med?med.dosage:'',time,note:''});});D.medLogs.sort((a,b)=>new Date(b.time)-new Date(a.time));saveAll();closeModal('bp');selectedPointIdx=null;renderAll();showToast('✅','血压记录已保存');}
+function saveMedRecord(){const name=document.getElementById('input-med-name').value.trim(),dosage=document.getElementById('input-med-dosage').value.trim(),note=document.getElementById('input-med-note').value.trim();const fE=document.querySelector('#modal-med .freq-pills:first-of-type .freq-pill.selected'),tE=document.querySelector('#time-pills .freq-pill.selected');if(!name){showToast('⚠️','请输入药品名称');return;}if(!dosage){showToast('⚠️','请输入剂量');return;}D.medications.push({id:D.nMed++,name,dosage,frequency:fE?fE.dataset.freq:'每日一次',timePeriod:tE?tE.dataset.time:'早晨',note,active:true});saveAll();closeModal('med');renderAll();showToast('✅','用药已添加');}
+function toggleMed(id){const m=D.medications.find(x=>x.id===id);if(m){m.active=!m.active;saveAll();renderAll();showToast(m.active?'✅':'⏸️',m.active?`${m.name} 已启用`:`${m.name} 已停用`);}}
+
+let pendingDelete=null;
+function confirmDeleteBP(id){pendingDelete={type:'bp',id};document.getElementById('confirm-title').textContent='删除此条血压记录？';document.getElementById('confirm-desc').textContent='删除后无法恢复。';document.getElementById('confirm-ok').onclick=executeDelete;document.getElementById('confirm-overlay').classList.add('active');}
+function confirmDeleteMed(id){pendingDelete={type:'med',id};document.getElementById('confirm-title').textContent='删除此药品？';document.getElementById('confirm-desc').textContent='相关服药日志不会被删除。';document.getElementById('confirm-ok').onclick=executeDelete;document.getElementById('confirm-overlay').classList.add('active');}
+function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('active');pendingDelete=null;}
+function executeDelete(){if(!pendingDelete)return;if(pendingDelete.type==='bp')D.bpRecords=D.bpRecords.filter(r=>r.id!==pendingDelete.id);if(pendingDelete.type==='med')D.medications=D.medications.filter(m=>m.id!==pendingDelete.id);saveAll();closeConfirm();selectedPointIdx=null;renderAll();showToast('🗑️','已删除');}
+
+function exportCSV(type){let csv='',fn='';const BOM='\uFEFF';if(type==='bp'||type==='all'){csv+='日期,时间,收缩压(mmHg),舒张压(mmHg),心率(bpm),分类,已服药物,备注\n';D.bpRecords.forEach(r=>{const dt=new Date(r.time);csv+=`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')},${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')},${r.systolic},${r.diastolic},${r.heartrate},${classifyBP(r.systolic,r.diastolic).label},"${(r.meds||[]).join('+')}","${r.note||''}"\n`;});fn='血压记录';}if(type==='all')csv+='\n';if(type==='med'||type==='all'){if(type==='all')csv+='--- 用药列表 ---\n';csv+='药品名称,剂量,频率,时段,状态,备注\n';D.medications.forEach(m=>{csv+=`"${m.name}","${m.dosage}",${m.frequency},${m.timePeriod},${m.active?'使用中':'已停用'},"${m.note||''}"\n`;});csv+='\n';if(type==='all')csv+='--- 服药日志 ---\n';csv+='药品名称,剂量,服药日期,服药时间\n';D.medLogs.forEach(l=>{const dt=new Date(l.time);csv+=`"${l.medName}","${l.dosage}",${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')},${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}\n`;});fn=type==='med'?'用药记录':'血压与用药记录';}const blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`${fn}_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast('📄',`${fn} CSV 已导出`);}
+
+function showToast(icon,text){const t=document.getElementById('toast');document.getElementById('toast-icon').textContent=icon;document.getElementById('toast-text').textContent=text;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+document.querySelectorAll('.chart-tab').forEach(t=>t.addEventListener('click',function(){document.querySelectorAll('.chart-tab').forEach(x=>x.classList.remove('active'));this.classList.add('active');selectedPointIdx=null;hideDetail();renderChart();}));
+
+renderAll();
+</script>
+</body>
+</html>
