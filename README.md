@@ -14,12 +14,11 @@
 
 ## 本地运行
 
-直接在浏览器打开 `/home/runner/work/bloodpressure/bloodpressure/index.html` 即可。
+直接在浏览器打开 `index.html` 即可。
 
 如需本地服务：
 
 ```bash
-cd /home/runner/work/bloodpressure/bloodpressure
 python3 -m http.server 8000
 ```
 
