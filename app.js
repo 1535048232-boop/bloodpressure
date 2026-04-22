@@ -4,6 +4,7 @@ const form = document.getElementById("record-form");
 const messageEl = document.getElementById("message");
 const recordsBody = document.getElementById("records-body");
 const statsEl = document.getElementById("stats");
+let messageTimer = null;
 
 const today = new Date();
 today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
@@ -31,6 +32,21 @@ function generateRecordId() {
     return crypto.randomUUID();
   }
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function showMessage(text, type) {
+  messageEl.textContent = text;
+  messageEl.classList.remove("message-success", "message-error");
+  messageEl.classList.add(type === "error" ? "message-error" : "message-success");
+}
+
+function clearMessage() {
+  if (messageTimer) {
+    clearTimeout(messageTimer);
+    messageTimer = null;
+  }
+  messageEl.textContent = "";
+  messageEl.classList.remove("message-success", "message-error");
 }
 
 function renderStats(records) {
@@ -81,7 +97,7 @@ form.addEventListener("submit", (event) => {
   const note = document.getElementById("note").value.trim();
 
   if (systolic <= diastolic) {
-    messageEl.textContent = "收缩压必须高于舒张压。";
+    showMessage("收缩压必须高于舒张压。", "error");
     return;
   }
 
@@ -102,7 +118,11 @@ form.addEventListener("submit", (event) => {
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById("recordedAt").value = now.toISOString().slice(0, 16);
 
-  messageEl.textContent = "记录已保存。";
+  showMessage("记录已保存。", "success");
+  if (messageTimer) {
+    clearTimeout(messageTimer);
+  }
+  messageTimer = setTimeout(clearMessage, 3000);
   renderRecords();
 });
 
@@ -114,8 +134,16 @@ recordsBody.addEventListener("click", (event) => {
 
   const records = loadRecords().filter((record) => record.id !== target.dataset.id);
   saveRecords(records);
-  messageEl.textContent = "记录已删除。";
+  showMessage("记录已删除。", "success");
+  if (messageTimer) {
+    clearTimeout(messageTimer);
+  }
+  messageTimer = setTimeout(clearMessage, 3000);
   renderRecords();
+});
+
+form.addEventListener("input", () => {
+  clearMessage();
 });
 
 renderRecords();
