@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>血压记录</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
+        <div>
+          <h1>血压记录</h1>
+          <p>守护心血管健康 · 本地储存</p>
+        </div>
+      </header>
+
+      <section class="tabs">
+        <button class="tab active" data-tab="bp">血压记录</button>
+        <button class="tab" data-tab="med">用药记录</button>
+      </section>
+
+      <section id="bp-panel">
+        <h2>最近平均值</h2>
+        <div class="cards">
+          <article class="card">
+            <h3>收缩压</h3>
+            <p class="value" id="avg-sys">--</p>
+            <small>mmHg</small>
+          </article>
+          <article class="card">
+            <h3>舒张压</h3>
+            <p class="value" id="avg-dia">--</p>
+            <small>mmHg</small>
+          </article>
+          <article class="card">
+            <h3>心率</h3>
+            <p class="value" id="avg-hr">--</p>
+            <small>bpm</small>
+          </article>
+        </div>
+
+        <article class="status" id="status-card">
+          <h3 id="status-title">暂无数据</h3>
+          <p id="status-text">请先记录血压。</p>
+        </article>
+
+        <section class="chart-wrap">
+          <div class="chart-head">
+            <h2>趋势图表</h2>
+            <button class="ghost" id="range-toggle">最近7条</button>
+          </div>
+          <svg id="trend-chart" viewBox="0 0 700 260" preserveAspectRatio="none"></svg>
+          <div class="legend">
+            <span><i class="dot sys"></i>收缩压</span>
+            <span><i class="dot dia"></i>舒张压</span>
+            <span><i class="dot hr"></i>心率</span>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button id="export-bp">导出血压 CSV</button>
+          <button id="export-all">导出全部 CSV</button>
+        </div>
+
+        <h2>历史记录</h2>
+        <ul id="bp-list" class="list"></ul>
+      </section>
+
+      <section id="med-panel" class="hidden">
+        <h2>用药记录</h2>
+        <ul id="med-list" class="list"></ul>
+      </section>
+
+      <button id="add-btn" class="add">+ 记录</button>
+    </main>
+
+    <dialog id="form-dialog">
+      <form method="dialog" id="entry-form">
+        <h3 id="form-title">新增记录</h3>
+        <div id="form-fields"></div>
+        <menu>
+          <button value="cancel" type="button" id="cancel-btn">取消</button>
+          <button value="default" type="submit">保存</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <template id="bp-fields-template">
+      <label>收缩压(mmHg)<input name="systolic" type="number" min="60" max="260" required /></label>
+      <label>舒张压(mmHg)<input name="diastolic" type="number" min="40" max="180" required /></label>
+      <label>心率(bpm)<input name="heartRate" type="number" min="30" max="220" required /></label>
+      <label>记录时间<input name="timestamp" type="datetime-local" required /></label>
+      <label>场景备注<input name="context" type="text" placeholder="如：晨起、饭后、运动后" /></label>
+    </template>
+
+    <template id="med-fields-template">
+      <label>药物名称<input name="name" type="text" required /></label>
+      <label>剂量<input name="dose" type="text" placeholder="如：5mg" required /></label>
+      <label>服药时间<input name="time" type="datetime-local" required /></label>
+      <label>备注<input name="note" type="text" placeholder="可选" /></label>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
