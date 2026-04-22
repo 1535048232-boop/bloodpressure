@@ -26,6 +26,13 @@ function formatDateTime(value) {
   return new Date(value).toLocaleString("zh-CN");
 }
 
+function generateRecordId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function renderStats(records) {
   if (!records.length) {
     statsEl.textContent = "暂无数据";
@@ -81,7 +88,7 @@ form.addEventListener("submit", (event) => {
   const pulse = pulseValue ? Number(pulseValue) : null;
   const records = loadRecords();
   records.push({
-    id: crypto.randomUUID(),
+    id: generateRecordId(),
     recordedAt,
     systolic,
     diastolic,

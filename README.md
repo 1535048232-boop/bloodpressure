@@ -12,4 +12,4 @@
 
 ## 使用方式
 
-直接在浏览器打开 `/home/runner/work/bloodpressure/bloodpressure/index.html` 即可使用。
+直接在浏览器打开 `index.html` 即可使用。
