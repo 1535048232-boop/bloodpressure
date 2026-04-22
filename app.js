@@ -5,6 +5,7 @@ const messageEl = document.getElementById("message");
 const recordsBody = document.getElementById("records-body");
 const statsEl = document.getElementById("stats");
 let messageTimer = null;
+let recordIdCounter = 0;
 
 const today = new Date();
 today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
@@ -31,7 +32,8 @@ function generateRecordId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  recordIdCounter += 1;
+  return `${Date.now()}-${recordIdCounter}`;
 }
 
 function showMessage(text, type) {
@@ -55,8 +57,8 @@ function renderStats(records) {
     return;
   }
   const total = records.length;
-  const avgSystolic = Math.round(records.reduce((s, r) => s + r.systolic, 0) / total);
-  const avgDiastolic = Math.round(records.reduce((s, r) => s + r.diastolic, 0) / total);
+  const avgSystolic = Math.round(records.reduce((sum, record) => sum + record.systolic, 0) / total);
+  const avgDiastolic = Math.round(records.reduce((sum, record) => sum + record.diastolic, 0) / total);
   statsEl.textContent = `共 ${total} 条，平均血压：${avgSystolic}/${avgDiastolic} mmHg`;
 }
 
